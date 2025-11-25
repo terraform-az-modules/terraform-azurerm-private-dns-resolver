@@ -30,10 +30,10 @@ resource "azurerm_private_dns_resolver" "this" {
 ## Inbound Endpoints
 ##-----------------------------------------------------------------------------
 resource "azurerm_private_dns_resolver_inbound_endpoint" "this" {
-  for_each = {
+  for_each = var.enabled ? {
     for ep in var.dns_resolver_inbound_endpoints :
     ep.inbound_endpoint_name => ep
-  }
+  } : {}
 
   name                    = each.value.inbound_endpoint_name
   location                = var.location
@@ -49,10 +49,10 @@ resource "azurerm_private_dns_resolver_inbound_endpoint" "this" {
 ## Outbound Endpoints
 ##-----------------------------------------------------------------------------
 resource "azurerm_private_dns_resolver_outbound_endpoint" "this" {
-  for_each = {
+  for_each = var.enabled ? {
     for ep in var.dns_resolver_outbound_endpoints :
     ep.outbound_endpoint_name => ep
-  }
+  } : {}
 
   name                    = each.value.outbound_endpoint_name
   private_dns_resolver_id = azurerm_private_dns_resolver.this[0].id
@@ -66,8 +66,7 @@ resource "azurerm_private_dns_resolver_outbound_endpoint" "this" {
 ## DNS Forwarding Rulesets
 ##-----------------------------------------------------------------------------
 resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "this" {
-  count = length(var.dns_forwarding_rules) > 0 ? 1 : 0
-  # name                = "${var.name}-ruleset"  # need to confirm naming
+  count = var.enabled && length(var.dns_forwarding_rules) > 0 ? 1 : 0
   name                = var.resource_position_prefix ? format("ruleset-%s", local.name) : format("%s-ruleset", local.name)
   resource_group_name = var.resource_group_name
   location            = var.location
@@ -83,10 +82,10 @@ resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "this" {
 ## Forwarding Rules
 ##-----------------------------------------------------------------------------
 resource "azurerm_private_dns_resolver_forwarding_rule" "this" {
-  for_each = {
+  for_each = var.enabled && length(var.dns_forwarding_rules) > 0 ? {
     for rule in var.dns_forwarding_rules :
     rule.name => rule
-  }
+  } : {}
 
   name                      = each.value.name
   domain_name               = each.value.domain_name

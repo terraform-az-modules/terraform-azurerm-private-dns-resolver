@@ -7,7 +7,7 @@ output "label_order" {
 }
 
 output "private_dns_resolver_id" {
-  value       = azurerm_private_dns_resolver.this[0].id
+  value       = var.enabled ? azurerm_private_dns_resolver.this[0].id : null
   description = "ID of the Private DNS Resolver"
 }
 

@@ -67,6 +67,21 @@ module "subnet" {
       name                    = "subnet2"
       subnet_prefixes         = ["10.0.2.0/24"]
       default_outbound_access = true
+
+      delegations = [
+        {
+          name = "Microsoft.Network/dnsResolvers"
+
+          service_delegations = [
+            {
+              name = "Microsoft.Network/dnsResolvers"
+              actions = [
+                "Microsoft.Network/virtualNetworks/subnets/join/action"
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 
