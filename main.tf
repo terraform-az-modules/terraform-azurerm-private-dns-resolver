@@ -66,7 +66,7 @@ resource "azurerm_private_dns_resolver_outbound_endpoint" "this" {
 ## DNS Forwarding Rulesets
 ##-----------------------------------------------------------------------------
 resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "this" {
-  count = var.enabled && length(var.dns_forwarding_rules) > 0 ? 1 : 0
+  count               = var.enabled && length(var.dns_forwarding_rules) > 0 ? 1 : 0
   name                = var.resource_position_prefix ? format("ruleset-%s", local.name) : format("%s-ruleset", local.name)
   resource_group_name = var.resource_group_name
   location            = var.location
