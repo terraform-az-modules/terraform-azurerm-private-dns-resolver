@@ -111,7 +111,7 @@ variable "outbound_endpoint_forwarding_rule_sets" {
     forwarding_ruleset_name = string
   }))
   default     = []
-  description = "List of DNS forwarding rulesets to associate with outbound endpoints. Each entry requires the outbound endpoint name, ruleset name, and outbound endpoint resource ID."
+  description = "List of DNS forwarding rulesets to associate with outbound endpoints. Each entry requires the outbound endpoint key (matching a key in outbound_endpoint_map) and the ruleset name."
 }
 
 variable "virtual_network_id" {

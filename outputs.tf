@@ -31,7 +31,7 @@ output "inbound_endpoint_ip_addresses" {
   description = "Map of inbound endpoint keys to their private IP addresses."
   value = {
     for k, v in azurerm_private_dns_resolver_inbound_endpoint.main :
-    k => v.ip_configurations[0].private_ip_address
+    k => try(v.ip_configurations[0].private_ip_address, null)
   }
 }
 

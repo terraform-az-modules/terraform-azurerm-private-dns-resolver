@@ -32,7 +32,7 @@ resource "azurerm_private_dns_resolver" "main" {
 resource "azurerm_private_dns_resolver_inbound_endpoint" "main" {
   for_each                = var.enabled ? var.inbound_endpoint_map : {}
   name                    = "${each.value.inbound_endpoint_name}-in"
-  private_dns_resolver_id = azurerm_private_dns_resolver.main[0].id
+  private_dns_resolver_id = one(azurerm_private_dns_resolver.main[*].id)
   location                = var.location
   tags                    = module.labels.tags
   ip_configurations {
@@ -59,12 +59,19 @@ resource "azurerm_private_dns_resolver_outbound_endpoint" "main" {
 ##-----------------------------------------------------------------------------
 resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "main" {
   for_each = var.enabled ? {
-    for frs in var.outbound_endpoint_forwarding_rule_sets :
-    "${frs.outbound_endpoint_key}-${frs.forwarding_ruleset_name}" => frs
+    for name in distinct([
+      for frs in var.outbound_endpoint_forwarding_rule_sets :
+      frs.forwarding_ruleset_name
+    ]) :
+    name => [
+      for frs in var.outbound_endpoint_forwarding_rule_sets :
+      frs.outbound_endpoint_key
+      if frs.forwarding_ruleset_name == name
+    ]
   } : {}
-  name                                       = each.value.forwarding_ruleset_name
+  name                                       = each.key
   resource_group_name                        = var.resource_group_name
   location                                   = var.location
-  private_dns_resolver_outbound_endpoint_ids = [azurerm_private_dns_resolver_outbound_endpoint.main[each.value.outbound_endpoint_key].id]
+  private_dns_resolver_outbound_endpoint_ids = [for key in each.value : azurerm_private_dns_resolver_outbound_endpoint.main[key].id]
   tags                                       = module.labels.tags
 }
