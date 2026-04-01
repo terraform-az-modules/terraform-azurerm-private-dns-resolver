@@ -69,7 +69,7 @@ variable "extra_tags" {
 
 variable "resource_position_prefix" {
   type        = bool
-  default     = false
+  default     = true
   description = "If true, prefixes resource names instead of suffixing."
 }
 
